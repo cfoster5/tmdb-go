@@ -50,10 +50,8 @@ const traktURL = "https://api.trakt.tv"
 
 func getMonthStart(month time.Month) string {
 	year := time.Now().Year()
-	// Construct the first day of the given month at UTC midnight
-	t := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
-	// Return in TMDB/Trakt API format
-	return t.Format("2006-01-02T15:04:05.000Z")
+	t := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	return t.UTC().Format("2006-01-02T15:04:05.000Z")
 }
 
 func GetMovieHistory() WatchedHistory {
