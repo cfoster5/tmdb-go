@@ -81,7 +81,7 @@ func GetMovieDetails(movieId int) MovieDetails {
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("Authorization", "Bearer "+os.Getenv("TMDB_KEY"))
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := HttpClient.Do(req)
 	if err != nil {
 		log.Printf("Error making request: %v", err)
 	}

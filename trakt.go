@@ -49,13 +49,34 @@ const (
 const traktURL = "https://api.trakt.tv"
 
 func getMonthStart(month time.Month) string {
+	centralTime, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		log.Printf("Error loading timezone, falling back to UTC: %v", err)
+		centralTime = time.UTC
+	}
+
 	year := time.Now().Year()
-	t := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	t := time.Date(year, month, 1, 0, 0, 0, 0, centralTime)
 	return t.UTC().Format("2006-01-02T15:04:05.000Z")
+}
+
+func getCurrentTime() string {
+	centralTime, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		log.Printf("Error loading timezone, falling back to UTC: %v", err)
+		centralTime = time.UTC
+	}
+
+	// Get current time, then convert to UTC for API
+	now := time.Now().In(centralTime)
+	// Set to end of today in CST
+	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 999999999, centralTime)
+	return endOfDay.UTC().Format("2006-01-02T15:04:05.000Z")
 }
 
 func GetMovieHistory() WatchedHistory {
 	jan1 := getMonthStart(time.January)
+	endTime := getCurrentTime()
 
 	req, err := http.NewRequest("GET", traktURL+"/users/cfoster5/history/movies", nil)
 	if err != nil {
@@ -66,11 +87,13 @@ func GetMovieHistory() WatchedHistory {
 
 	params := url.Values{}
 	params.Add("start_at", jan1)
-	params.Add("end_at", "2025-08-07T00:00:00.000Z")
+	params.Add("end_at", endTime)
 	params.Add("limit", "100")
 	req.URL.RawQuery = params.Encode()
 
-	res, err := http.DefaultClient.Do(req)
+	log.Printf("Fetching Trakt history from %s to %s", jan1, endTime)
+
+	res, err := HttpClient.Do(req)
 	if err != nil {
 		log.Printf("Error making request: %v", err)
 	}

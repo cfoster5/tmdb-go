@@ -31,5 +31,6 @@ go.work.sum
 # .idea/
 # .vscode/
 
-# Downloaded images
-images/
+# Build Outputs
+bootstrap
+*.zip
