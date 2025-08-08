@@ -66,7 +66,7 @@ func GetMovieHistory() WatchedHistory {
 
 	params := url.Values{}
 	params.Add("start_at", jan1)
-	params.Add("end_at", "2025-08-02T00:00:00.000Z")
+	params.Add("end_at", "2025-08-07T00:00:00.000Z")
 	params.Add("limit", "100")
 	req.URL.RawQuery = params.Encode()
 

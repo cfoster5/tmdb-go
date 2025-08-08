@@ -6,9 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
-	"time"
 )
 
 type MovieDetails struct {
@@ -71,8 +69,8 @@ type SpokenLanguage struct {
 }
 
 const apiUrl = "https://api.themoviedb.org/3"
-const imageBaseUrl = "https://image.tmdb.org/t/p/"
-const fileSize = "w780"
+const ImageBaseUrl = "https://image.tmdb.org/t/p/"
+const FileSize = "w780"
 
 func GetMovieDetails(movieId int) MovieDetails {
 
@@ -101,43 +99,4 @@ func GetMovieDetails(movieId int) MovieDetails {
 		log.Printf("Error parsing JSON: %v", err)
 	}
 	return response
-}
-
-func GetImage(filePath string, watchedAt time.Time) {
-	imageUrl := imageBaseUrl + fileSize + filePath
-
-	req, _ := http.NewRequest("GET", imageUrl, nil)
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Printf("Error making request to image URL: %v", err)
-	}
-	defer res.Body.Close()
-
-	currentDir, err := os.Getwd()
-	if err != nil {
-		log.Println("Error getting current directory:", err)
-	}
-
-	imagesDir := filepath.Join(currentDir, "images")
-	err = os.MkdirAll(imagesDir, 0755)
-	if err != nil {
-		log.Println("Error creating images directory:", err)
-	}
-
-	// TODO: There's a bug where a movie watched on 12/31 is brought back in
-	// history even though getMonthStart returns 1/1
-	cleanFilePath := filepath.Clean(watchedAt.Local().Format("2006-01-02_15-04-05") + ".jpg")
-	fullPath := filepath.Join(imagesDir, cleanFilePath)
-
-	file, err := os.Create(fullPath)
-	if err != nil {
-		log.Printf("Error creating file %s: %v", fullPath, err)
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, res.Body)
-	if err != nil {
-		log.Printf("Error writing to file %s: %v", fullPath, err)
-	}
 }
